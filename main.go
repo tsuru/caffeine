@@ -24,9 +24,9 @@ var (
 )
 
 func main() {
-	conn := redisPool.Get()
-	defer conn.Close()
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		conn := redisPool.Get()
+		defer conn.Close()
 		host := r.Host
 		restoreRoute(host, conn)
 		startApp(host)
