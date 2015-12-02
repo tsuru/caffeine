@@ -4,18 +4,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"testing"
 
 	"gopkg.in/check.v1"
 )
 
-func Test(t *testing.T) { check.TestingT(t) }
-
-type AppSuite struct{}
-
-var _ = check.Suite(&AppSuite{})
-
-func (s *AppSuite) TestStartApp(c *check.C) {
+func (s *Suite) TestStartApp(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "POST")
 		c.Assert(r.URL.String(), check.Equals, "/apps/myapp/start")
@@ -30,7 +23,7 @@ func (s *AppSuite) TestStartApp(c *check.C) {
 	startApp(req)
 }
 
-func (s *AppSuite) TestAppNameCaffeine(c *check.C) {
+func (s *Suite) TestAppNameCaffeine(c *check.C) {
 	req, err := http.NewRequest("GET", "http://tsuru-caffeine-proxy.mytsuru.com", nil)
 	c.Assert(err, check.IsNil)
 	req.Header.Add("Host", "tsuru-caffeine-proxy.mytsuru.com")
@@ -39,7 +32,7 @@ func (s *AppSuite) TestAppNameCaffeine(c *check.C) {
 	c.Assert(app, check.Equals, "")
 }
 
-func (s *AppSuite) TestAppNameApp(c *check.C) {
+func (s *Suite) TestAppNameApp(c *check.C) {
 	req, err := http.NewRequest("GET", "http://myapp.mytsuru.com", nil)
 	c.Assert(err, check.IsNil)
 	req.Header.Add("Host", "myapp.mytsuru.com")
