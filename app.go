@@ -17,7 +17,7 @@ func startApp(r *http.Request) {
 	}
 	log.Printf("app name: %s\n", app)
 
-	startAppUrl := fmt.Sprintf("http://%s/apps/%s/start", app, os.Getenv("TSURU_HOST"))
+	startAppUrl := fmt.Sprintf("http://%s/apps/%s/start", os.Getenv("TSURU_HOST"), app)
 	authToken := fmt.Sprintf("bearer %s", os.Getenv("TOKEN"))
 
 	client := &http.Client{}
