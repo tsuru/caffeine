@@ -34,7 +34,6 @@ func startApp(r *http.Request) {
 
 func appName(r *http.Request) (string, error) {
 	app := strings.Split(r.Host, ".")[0]
-	log.Printf("appName -> %s", app)
 	if app != "tsuru-caffeine-proxy" {
 		return app, nil
 	}
