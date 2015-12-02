@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"os"
 	"strconv"
 	"time"
@@ -31,16 +30,7 @@ func main() {
 		restoreRoute(r, conn)
 		startApp(r)
 		time.Sleep(10 * time.Second)
-
-		director := func(req *http.Request) {
-			req.URL = r.URL
-			req.URL.Scheme = "http"
-			req.URL.Host = r.Host
-			req.Host = r.Host
-			log.Printf("Request: %#v", req)
-		}
-
-		proxy := &httputil.ReverseProxy{Director: director}
+		proxy := createProxy(r)
 		proxy.ServeHTTP(w, r)
 	})
 
@@ -48,7 +38,6 @@ func main() {
 }
 
 func restoreRoute(r *http.Request, conn redis.Conn) {
-
 	name := HIPACHE_PREFIX + r.Host
 	log.Print("Deleting ", name)
 	_, err := conn.Do("LTRIM", name, 0, 0)
