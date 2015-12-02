@@ -11,8 +11,8 @@ import (
 
 const CAFFEINE_APP_NAME = "tsuru-caffeine-proxy"
 
-func startApp(r *http.Request) {
-	app, err := appName(r)
+func startApp(host string) {
+	app, err := appName(host)
 	if err != nil {
 		log.Println(err)
 		return
@@ -34,8 +34,8 @@ func startApp(r *http.Request) {
 	log.Printf("app %s started", app)
 }
 
-func appName(r *http.Request) (string, error) {
-	app := strings.Split(r.Host, ".")[0]
+func appName(host string) (string, error) {
+	app := strings.Split(host, ".")[0]
 	if app != CAFFEINE_APP_NAME {
 		return app, nil
 	}

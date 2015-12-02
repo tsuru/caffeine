@@ -27,8 +27,9 @@ func main() {
 	conn := redisPool.Get()
 	defer conn.Close()
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		restoreRoute(r, conn)
-		startApp(r)
+		host := r.Host
+		restoreRoute(host, conn)
+		startApp(host)
 		time.Sleep(10 * time.Second)
 		proxy := createProxy(r)
 		proxy.ServeHTTP(w, r)
@@ -37,8 +38,8 @@ func main() {
 	http.ListenAndServe("0.0.0.0:8888", nil)
 }
 
-func restoreRoute(r *http.Request, conn redis.Conn) {
-	name := HIPACHE_PREFIX + r.Host
+func restoreRoute(host string, conn redis.Conn) {
+	name := HIPACHE_PREFIX + host
 	log.Print("Deleting ", name)
 	_, err := conn.Do("LTRIM", name, 0, 0)
 	if err != nil {

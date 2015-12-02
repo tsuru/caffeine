@@ -18,25 +18,17 @@ func (s *Suite) TestStartApp(c *check.C) {
 	os.Setenv("TSURU_HOST", ts.URL)
 	os.Setenv("TOKEN", "123")
 
-	req, err := http.NewRequest("GET", "http://myapp.mytsuru.com", nil)
-	c.Assert(err, check.IsNil)
-	startApp(req)
+	startApp("myapp.mytsuru.com")
 }
 
 func (s *Suite) TestAppNameCaffeine(c *check.C) {
-	req, err := http.NewRequest("GET", "http://tsuru-caffeine-proxy.mytsuru.com", nil)
-	c.Assert(err, check.IsNil)
-	req.Header.Add("Host", "tsuru-caffeine-proxy.mytsuru.com")
-	app, err := appName(req)
+	app, err := appName("tsuru-caffeine-proxy.mytsuru.com")
 	c.Assert(err, check.ErrorMatches, "invalid app name")
 	c.Assert(app, check.Equals, "")
 }
 
 func (s *Suite) TestAppNameApp(c *check.C) {
-	req, err := http.NewRequest("GET", "http://myapp.mytsuru.com", nil)
-	c.Assert(err, check.IsNil)
-	req.Header.Add("Host", "myapp.mytsuru.com")
-	app, err := appName(req)
+	app, err := appName("myapp.mytsuru.com")
 	c.Assert(err, check.IsNil)
 	c.Assert(app, check.Equals, "myapp")
 }
