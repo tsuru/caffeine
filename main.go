@@ -30,7 +30,9 @@ func main() {
 		host := r.Host
 		restoreRoute(host, conn)
 		startApp(host)
-		time.Sleep(10 * time.Second)
+
+		waitBeforeProxy()
+
 		proxy := createProxy(r)
 		proxy.ServeHTTP(w, r)
 	})
@@ -44,6 +46,14 @@ func restoreRoute(host string, conn redis.Conn) {
 	_, err := conn.Do("LTRIM", name, 0, 0)
 	if err != nil {
 		log.Printf("Err: %s\n", err)
+	}
+}
+
+func waitBeforeProxy() {
+	sleepTime, err := strconv.Atoi(getConfig("WAIT_BEFORE_PROXY"))
+	if err == nil && sleepTime > 0 {
+		log.Printf("Waiting %d seconds before proxying...\n", sleepTime)
+		time.Sleep(time.Duration(sleepTime) * time.Second)
 	}
 }
 

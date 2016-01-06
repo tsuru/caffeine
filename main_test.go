@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"github.com/rafaeljusto/redigomock"
 	"gopkg.in/check.v1"
@@ -12,6 +13,14 @@ func (s *Suite) TestRestoreRoute(c *check.C) {
 	host := "tsuru-caffeine-proxy.mytsuru.com"
 	conn.Command("LTRIM", HIPACHE_PREFIX+host, 0, 0).Expect("OK")
 	restoreRoute(host, conn)
+}
+
+func (s *Suite) TestWaitBeforeProxy(c *check.C) {
+	os.Setenv("WAIT_BEFORE_PROXY", "1")
+	start := time.Now()
+	waitBeforeProxy()
+	runTime := time.Since(start).Seconds()
+	c.Assert(runTime >= 1, check.Equals, true)
 }
 
 func (s *Suite) TestHipacheRedisAddrWithDefaultConfiguration(c *check.C) {
