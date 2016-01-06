@@ -39,7 +39,7 @@ func (s *Suite) TestAppNameIsCaffeine(c *check.C) {
 		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
 
 		jsonData, _ := json.Marshal([]App{
-			App{Name: "tsuru-caffeine-proxy", Ip: "", Cname: []string{"tsuru-caffeine-proxy.mytsuru.com"}},
+			App{Name: "tsuru-caffeine-proxy", Ip: "", Cname: []string{"proxy.mytsuru.com"}},
 		})
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonData)
@@ -47,8 +47,9 @@ func (s *Suite) TestAppNameIsCaffeine(c *check.C) {
 	defer ts.Close()
 	os.Setenv("TSURU_HOST", ts.URL)
 	os.Setenv("TOKEN", "123")
+	os.Setenv("TSURU_APP_PROXY", "tsuru-caffeine-proxy")
 
-	app, err := appName("tsuru-caffeine-proxy.mytsuru.com")
+	app, err := appName("proxy.mytsuru.com")
 	c.Assert(err, check.ErrorMatches, "App tsuru-caffeine-proxy can't be started by itself")
 	c.Assert(app, check.Equals, "")
 }

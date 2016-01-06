@@ -9,8 +9,6 @@ import (
 	"os"
 )
 
-const CAFFEINE_APP_NAME = "tsuru-caffeine-proxy"
-
 type App struct {
 	Name  string
 	Ip    string
@@ -42,7 +40,7 @@ func appName(hostname string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if app.Name == CAFFEINE_APP_NAME {
+	if app.Name == os.Getenv("TSURU_APP_PROXY") {
 		return "", fmt.Errorf("App %s can't be started by itself", app.Name)
 	}
 
