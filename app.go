@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -10,6 +12,11 @@ import (
 )
 
 const CAFFEINE_APP_NAME = "tsuru-caffeine-proxy"
+
+type App struct {
+	Name  string
+	Cname string
+}
 
 func startApp(host string) {
 	app, err := appName(host)
@@ -36,9 +43,82 @@ func startApp(host string) {
 
 func appName(host string) (string, error) {
 	app := strings.Split(host, ".")[0]
-	if app != CAFFEINE_APP_NAME {
-		return app, nil
+	if app == CAFFEINE_APP_NAME {
+		return "", errors.New("invalid app name")
 	}
 
-	return "", errors.New("invalid app name")
+	appName, err := getAppName(app)
+	if err == nil {
+		return appName, nil
+	}
+
+	appName, err = getAppNameByCname(app)
+	if err == nil {
+		return appName, nil
+	}
+
+	return "", err
+}
+
+func getAppName(appName string) (string, error) {
+	listAppsUrl := fmt.Sprintf("%s/apps/?name=%s", os.Getenv("TSURU_HOST"), appName)
+	authToken := fmt.Sprintf("bearer %s", os.Getenv("TOKEN"))
+
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", listAppsUrl, nil)
+	req.Header.Add("Authorization", authToken)
+	resp, _ := client.Do(req)
+	if resp.StatusCode != 200 {
+		log.Printf("Error trying to get app %s", appName)
+		return "", errors.New("Error trying to get app info")
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Error trying to get app %s", appName)
+		return "", errors.New("Error trying to get app info")
+	}
+
+	var apps []App
+	json.Unmarshal(body, &apps)
+	if len(apps) == 0 {
+		log.Printf("App %s not found", appName)
+		return "", errors.New("App not found")
+	}
+
+	return apps[0].Name, nil
+}
+
+func getAppNameByCname(appName string) (string, error) {
+	fmt.Println("getAppNameByCname")
+	listAppsUrl := fmt.Sprintf("%s/apps/", os.Getenv("TSURU_HOST"))
+	authToken := fmt.Sprintf("bearer %s", os.Getenv("TOKEN"))
+
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", listAppsUrl, nil)
+	req.Header.Add("Authorization", authToken)
+	resp, _ := client.Do(req)
+	if resp.StatusCode != 200 {
+		log.Printf("Error trying to get app %s", appName)
+		return "", errors.New("Error trying to get app info")
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("Error trying to get app %s", appName)
+		return "", errors.New("Error trying to get app info")
+	}
+
+	var apps []App
+	json.Unmarshal(body, &apps)
+	for _, app := range apps {
+		if app.Cname == appName {
+			return app.Name, nil
+		}
+	}
+
+	log.Printf("App %s not found", appName)
+	return "", errors.New("App not found")
 }
