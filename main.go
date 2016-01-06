@@ -48,23 +48,31 @@ func restoreRoute(host string, conn redis.Conn) {
 }
 
 func hipacheRedisAddr() string {
-	host := os.Getenv("HIPACHE_REDIS_HOST")
-	if host == "" {
-		host = "localhost"
-	}
-	port := os.Getenv("HIPACHE_REDIS_PORT")
-	if port == "" {
-		port = "6379"
-	}
+	host := getConfig("HIPACHE_REDIS_HOST")
+	port := getConfig("HIPACHE_REDIS_PORT")
 
 	return fmt.Sprintf("%s:%s", host, port)
 }
 
 func hipacheRedisMaxConn() int {
-	maxConnValue := os.Getenv("HIPACHE_REDIS_MAX_CONN")
-	if maxConnValue == "" {
-		maxConnValue = "10"
-	}
-	maxConn, _ := strconv.Atoi(maxConnValue)
+	maxConn, _ := strconv.Atoi(getConfig("HIPACHE_REDIS_MAX_CONN"))
 	return maxConn
+}
+
+func getConfig(key string) string {
+	defaultValues := map[string]string{
+		"HIPACHE_REDIS_HOST":     "localhost",
+		"HIPACHE_REDIS_PORT":     "6379",
+		"HIPACHE_REDIS_MAX_CONN": "10",
+		"TSURU_HOST":             "http://localhost",
+		"TSURU_APP_PROXY":        "",
+		"TOKEN":                  "",
+	}
+
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValues[key]
+	}
+
+	return value
 }

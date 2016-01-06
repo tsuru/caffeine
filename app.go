@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 )
 
 type App struct {
@@ -22,7 +21,7 @@ func startApp(hostname string) {
 		return
 	}
 
-	startAppURL := fmt.Sprintf("%s/apps/%s/start", os.Getenv("TSURU_HOST"), appName)
+	startAppURL := fmt.Sprintf("%s/apps/%s/start", getConfig("TSURU_HOST"), appName)
 	client := &http.Client{}
 	req, _ := http.NewRequest("POST", startAppURL, nil)
 	req.Header.Add("Authorization", authToken())
@@ -40,7 +39,7 @@ func appName(hostname string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if app.Name == os.Getenv("TSURU_APP_PROXY") {
+	if app.Name == getConfig("TSURU_APP_PROXY") {
 		return "", fmt.Errorf("App %s can't be started by itself", app.Name)
 	}
 
@@ -68,11 +67,11 @@ func getApp(hostname string) (*App, error) {
 }
 
 func authToken() string {
-	return fmt.Sprintf("bearer %s", os.Getenv("TOKEN"))
+	return fmt.Sprintf("bearer %s", getConfig("TOKEN"))
 }
 
 func listApps() ([]App, error) {
-	listAppsURL := fmt.Sprintf("%s/apps/", os.Getenv("TSURU_HOST"))
+	listAppsURL := fmt.Sprintf("%s/apps/", getConfig("TSURU_HOST"))
 
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", listAppsURL, nil)
