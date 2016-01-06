@@ -26,12 +26,11 @@ func startApp(host string) {
 	}
 	log.Printf("app name: %s\n", app)
 
-	startAppUrl := fmt.Sprintf("%s/apps/%s/start", os.Getenv("TSURU_HOST"), app)
-	authToken := fmt.Sprintf("bearer %s", os.Getenv("TOKEN"))
+	startAppURL := fmt.Sprintf("%s/apps/%s/start", os.Getenv("TSURU_HOST"), app)
 
 	client := &http.Client{}
-	req, _ := http.NewRequest("POST", startAppUrl, nil)
-	req.Header.Add("Authorization", authToken)
+	req, _ := http.NewRequest("POST", startAppURL, nil)
+	req.Header.Add("Authorization", authToken())
 	resp, _ := client.Do(req)
 	if resp.StatusCode != 200 {
 		log.Printf("Error trying to start app %s", app)
@@ -61,12 +60,11 @@ func appName(host string) (string, error) {
 }
 
 func getAppName(appName string) (string, error) {
-	listAppsUrl := fmt.Sprintf("%s/apps/?name=%s", os.Getenv("TSURU_HOST"), appName)
-	authToken := fmt.Sprintf("bearer %s", os.Getenv("TOKEN"))
+	listAppsURL := fmt.Sprintf("%s/apps/?name=%s", os.Getenv("TSURU_HOST"), appName)
 
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", listAppsUrl, nil)
-	req.Header.Add("Authorization", authToken)
+	req, _ := http.NewRequest("GET", listAppsURL, nil)
+	req.Header.Add("Authorization", authToken())
 	resp, _ := client.Do(req)
 	if resp.StatusCode != 200 {
 		log.Printf("Error trying to get app %s", appName)
@@ -91,12 +89,11 @@ func getAppName(appName string) (string, error) {
 }
 
 func getAppNameByCname(appName string) (string, error) {
-	listAppsUrl := fmt.Sprintf("%s/apps/", os.Getenv("TSURU_HOST"))
-	authToken := fmt.Sprintf("bearer %s", os.Getenv("TOKEN"))
+	listAppsURL := fmt.Sprintf("%s/apps/", os.Getenv("TSURU_HOST"))
 
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", listAppsUrl, nil)
-	req.Header.Add("Authorization", authToken)
+	req, _ := http.NewRequest("GET", listAppsURL, nil)
+	req.Header.Add("Authorization", authToken())
 	resp, _ := client.Do(req)
 	if resp.StatusCode != 200 {
 		log.Printf("Error trying to get app %s", appName)
@@ -126,4 +123,8 @@ func getAppNameByCname(appName string) (string, error) {
 
 	log.Printf("App %s not found", appName)
 	return "", errors.New("App not found")
+}
+
+func authToken() string {
+	return fmt.Sprintf("bearer %s", os.Getenv("TOKEN"))
 }
