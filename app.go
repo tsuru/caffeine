@@ -51,7 +51,7 @@ func appName(host string) (string, error) {
 		return app.Name, nil
 	}
 
-	app, err = getAppByCname(appName)
+	app, err = getAppByCname(host)
 	if err == nil {
 		return app.Name, nil
 	}
@@ -74,7 +74,7 @@ func getAppByName(appName string) (*App, error) {
 	return &apps[0], nil
 }
 
-func getAppByCname(appName string) (*App, error) {
+func getAppByCname(hostname string) (*App, error) {
 	apps, err := listApps(nil)
 	if err != nil {
 		log.Println("Error trying to get apps info")
@@ -83,13 +83,13 @@ func getAppByCname(appName string) (*App, error) {
 
 	for _, app := range apps {
 		for _, cname := range app.Cname {
-			if cname == appName {
+			if cname == hostname {
 				return &app, nil
 			}
 		}
 	}
 
-	log.Printf("App %s not found", appName)
+	log.Printf("App with cname %s not found", hostname)
 	return nil, errors.New("App not found")
 }
 
