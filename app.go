@@ -15,11 +15,12 @@ const CAFFEINE_APP_NAME = "tsuru-caffeine-proxy"
 
 type App struct {
 	Name  string
+	Ip    string
 	Cname []string
 }
 
-func startApp(host string) {
-	app, err := appName(host)
+func startApp(hostname string) {
+	app, err := appName(hostname)
 	if err != nil {
 		log.Println(err)
 		return
@@ -40,18 +41,13 @@ func startApp(host string) {
 	log.Printf("app %s started", app)
 }
 
-func appName(host string) (string, error) {
-	appName := strings.Split(host, ".")[0]
+func appName(hostname string) (string, error) {
+	appName := strings.Split(hostname, ".")[0]
 	if appName == CAFFEINE_APP_NAME {
 		return "", errors.New("invalid app name")
 	}
 
-	app, err := getAppByName(appName)
-	if err == nil {
-		return app.Name, nil
-	}
-
-	app, err = getAppByCname(host)
+	app, err := getApp(hostname)
 	if err == nil {
 		return app.Name, nil
 	}
@@ -59,22 +55,7 @@ func appName(host string) (string, error) {
 	return "", err
 }
 
-func getAppByName(appName string) (*App, error) {
-	apps, err := listApps(map[string]string{"name": appName})
-	if err != nil {
-		log.Printf("Error trying to get app %s info", appName)
-		return nil, err
-	}
-
-	if len(apps) == 0 {
-		log.Printf("App %s not found", appName)
-		return nil, errors.New("App not found")
-	}
-
-	return &apps[0], nil
-}
-
-func getAppByCname(hostname string) (*App, error) {
+func getApp(hostname string) (*App, error) {
 	apps, err := listApps(nil)
 	if err != nil {
 		log.Println("Error trying to get apps info")
@@ -82,14 +63,17 @@ func getAppByCname(hostname string) (*App, error) {
 	}
 
 	for _, app := range apps {
+		if hostname == app.Ip {
+			return &app, nil
+		}
 		for _, cname := range app.Cname {
-			if cname == hostname {
+			if hostname == cname {
 				return &app, nil
 			}
 		}
 	}
 
-	log.Printf("App with cname %s not found", hostname)
+	log.Printf("App %s not found", hostname)
 	return nil, errors.New("App not found")
 }
 

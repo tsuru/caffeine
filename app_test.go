@@ -14,8 +14,10 @@ func (s *Suite) TestStartApp(c *check.C) {
 		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
 
 		if r.Method == "GET" {
-			c.Assert(r.URL.String(), check.Equals, "/apps/?name=myapp")
-			jsonData, _ := json.Marshal([]App{App{Name: "myapp"}})
+			c.Assert(r.URL.String(), check.Equals, "/apps/")
+			jsonData, _ := json.Marshal([]App{
+				App{Name: "myapp", Ip: "myapp.mytsuru.com"},
+			})
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(jsonData)
 		} else {
@@ -36,13 +38,16 @@ func (s *Suite) TestAppNameIsCaffeine(c *check.C) {
 	c.Assert(app, check.Equals, "")
 }
 
-func (s *Suite) TestAppNameFound(c *check.C) {
+func (s *Suite) TestAppNameFoundByIp(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "GET")
-		c.Assert(r.URL.String(), check.Equals, "/apps/?name=myapp")
+		c.Assert(r.URL.String(), check.Equals, "/apps/")
 		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
 
-		jsonData, _ := json.Marshal([]App{App{Name: "myapp"}})
+		jsonData, _ := json.Marshal([]App{
+			App{Name: "myapp0", Ip: "myapp", Cname: []string{}},
+			App{Name: "myapp-name", Ip: "myapp.mytsuru.com", Cname: []string{}},
+		})
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonData)
 	}))
@@ -52,25 +57,20 @@ func (s *Suite) TestAppNameFound(c *check.C) {
 
 	app, err := appName("myapp.mytsuru.com")
 	c.Assert(err, check.IsNil)
-	c.Assert(app, check.Equals, "myapp")
+	c.Assert(app, check.Equals, "myapp-name")
 }
 
 func (s *Suite) TestAppNameFoundByCname(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "GET")
+		c.Assert(r.URL.String(), check.Equals, "/apps/")
 		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
 
-		var jsonData []byte
-		if r.URL.String() == "/apps/?name=myapp-cname" {
-			jsonData, _ = json.Marshal([]App{})
-		} else {
-			c.Assert(r.URL.String(), check.Equals, "/apps/")
-			jsonData, _ = json.Marshal([]App{
-				App{Name: "app1", Cname: []string{"cname1.example.com"}},
-				App{Name: "real-app-name", Cname: []string{"cname2.example.com", "myapp-cname.mytsuru.com"}},
-				App{Name: "app2", Cname: []string{}},
-			})
-		}
+		jsonData, _ := json.Marshal([]App{
+			App{Name: "app1", Ip: "myapp-cname", Cname: []string{"cname1.example.com"}},
+			App{Name: "real-app-name", Ip: "", Cname: []string{"cname2.example.com", "myapp-cname.mytsuru.com"}},
+			App{Name: "app2", Ip: "app2", Cname: []string{"app2.mytsuru.com"}},
+		})
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonData)
@@ -87,15 +87,12 @@ func (s *Suite) TestAppNameFoundByCname(c *check.C) {
 func (s *Suite) TestAppNameNotFound(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "GET")
+		c.Assert(r.URL.String(), check.Equals, "/apps/")
 		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
 
-		var jsonData []byte
-		if r.URL.String() == "/apps/?name=myapp" {
-			jsonData, _ = json.Marshal([]App{})
-		} else {
-			c.Assert(r.URL.String(), check.Equals, "/apps/")
-			jsonData, _ = json.Marshal([]App{App{Name: "app-name", Cname: []string{"cname1.example.com", "cname2.example.com"}}})
-		}
+		jsonData, _ := json.Marshal([]App{
+			App{Name: "app-name", Ip: "app-ip", Cname: []string{"cname1.example.com", "cname2.example.com"}},
+		})
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonData)
