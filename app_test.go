@@ -33,6 +33,21 @@ func (s *Suite) TestStartApp(c *check.C) {
 }
 
 func (s *Suite) TestAppNameIsCaffeine(c *check.C) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		c.Assert(r.Method, check.Equals, "GET")
+		c.Assert(r.URL.String(), check.Equals, "/apps/")
+		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
+
+		jsonData, _ := json.Marshal([]App{
+			App{Name: "tsuru-caffeine-proxy", Ip: "", Cname: []string{"tsuru-caffeine-proxy.mytsuru.com"}},
+		})
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(jsonData)
+	}))
+	defer ts.Close()
+	os.Setenv("TSURU_HOST", ts.URL)
+	os.Setenv("TOKEN", "123")
+
 	app, err := appName("tsuru-caffeine-proxy.mytsuru.com")
 	c.Assert(err, check.ErrorMatches, "invalid app name")
 	c.Assert(app, check.Equals, "")

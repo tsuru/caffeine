@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 )
 
 const CAFFEINE_APP_NAME = "tsuru-caffeine-proxy"
@@ -42,17 +41,15 @@ func startApp(hostname string) {
 }
 
 func appName(hostname string) (string, error) {
-	appName := strings.Split(hostname, ".")[0]
-	if appName == CAFFEINE_APP_NAME {
+	app, err := getApp(hostname)
+	if err != nil {
+		return "", err
+	}
+	if app.Name == CAFFEINE_APP_NAME {
 		return "", errors.New("invalid app name")
 	}
 
-	app, err := getApp(hostname)
-	if err == nil {
-		return app.Name, nil
-	}
-
-	return "", err
+	return app.Name, nil
 }
 
 func getApp(hostname string) (*App, error) {
