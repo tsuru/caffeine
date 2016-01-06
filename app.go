@@ -15,7 +15,7 @@ const CAFFEINE_APP_NAME = "tsuru-caffeine-proxy"
 
 type App struct {
 	Name  string
-	Cname string
+	Cname []string
 }
 
 func startApp(host string) {
@@ -91,7 +91,6 @@ func getAppName(appName string) (string, error) {
 }
 
 func getAppNameByCname(appName string) (string, error) {
-	fmt.Println("getAppNameByCname")
 	listAppsUrl := fmt.Sprintf("%s/apps/", os.Getenv("TSURU_HOST"))
 	authToken := fmt.Sprintf("bearer %s", os.Getenv("TOKEN"))
 
@@ -112,10 +111,16 @@ func getAppNameByCname(appName string) (string, error) {
 	}
 
 	var apps []App
-	json.Unmarshal(body, &apps)
+	err = json.Unmarshal(body, &apps)
+	if err != nil {
+		log.Printf("Error trying to get app %s", appName)
+		return "", errors.New("Error trying to get app info")
+	}
 	for _, app := range apps {
-		if app.Cname == appName {
-			return app.Name, nil
+		for _, cname := range app.Cname {
+			if cname == appName {
+				return app.Name, nil
+			}
 		}
 	}
 

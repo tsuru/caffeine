@@ -65,7 +65,11 @@ func (s *Suite) TestAppNameFoundByCname(c *check.C) {
 			jsonData, _ = json.Marshal([]App{})
 		} else {
 			c.Assert(r.URL.String(), check.Equals, "/apps/")
-			jsonData, _ = json.Marshal([]App{App{Name: "real-app-name", Cname: "myapp-cname"}})
+			jsonData, _ = json.Marshal([]App{
+				App{Name: "app1", Cname: []string{"cname1"}},
+				App{Name: "real-app-name", Cname: []string{"cname2", "myapp-cname"}},
+				App{Name: "app2", Cname: []string{}},
+			})
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -90,7 +94,7 @@ func (s *Suite) TestAppNameNotFound(c *check.C) {
 			jsonData, _ = json.Marshal([]App{})
 		} else {
 			c.Assert(r.URL.String(), check.Equals, "/apps/")
-			jsonData, _ = json.Marshal([]App{})
+			jsonData, _ = json.Marshal([]App{App{Name: "app-name", Cname: []string{"cname1", "cname2"}}})
 		}
 
 		w.Header().Set("Content-Type", "application/json")
