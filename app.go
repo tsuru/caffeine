@@ -56,7 +56,7 @@ func appName(hostname string) (string, error) {
 }
 
 func getApp(hostname string) (*App, error) {
-	apps, err := listApps(nil)
+	apps, err := listApps()
 	if err != nil {
 		log.Println("Error trying to get apps info")
 		return nil, err
@@ -81,8 +81,8 @@ func authToken() string {
 	return fmt.Sprintf("bearer %s", os.Getenv("TOKEN"))
 }
 
-func listApps(queryParams map[string]string) ([]App, error) {
-	listAppsURL := fmt.Sprintf("%s/apps/%s", os.Getenv("TSURU_HOST"), queryParamsToString(queryParams))
+func listApps() ([]App, error) {
+	listAppsURL := fmt.Sprintf("%s/apps/", os.Getenv("TSURU_HOST"))
 
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", listAppsURL, nil)
@@ -105,19 +105,4 @@ func listApps(queryParams map[string]string) ([]App, error) {
 	}
 
 	return apps, nil
-}
-
-func queryParamsToString(queryParams map[string]string) string {
-	str := ""
-	for key, value := range queryParams {
-		var separator string
-		if len(str) == 0 {
-			separator = "?"
-		} else {
-			separator = "&"
-		}
-
-		str = fmt.Sprintf("%s%s%s=%s", str, separator, key, value)
-	}
-	return str
 }
