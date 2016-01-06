@@ -32,7 +32,7 @@ func (s *Suite) TestStartApp(c *check.C) {
 	startApp(App{Name: "myapp"})
 }
 
-func (s *Suite) TestAppNameIsCaffeine(c *check.C) {
+func (s *Suite) TestGetAppIsProxy(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "GET")
 		c.Assert(r.URL.String(), check.Equals, "/apps/")
@@ -49,12 +49,12 @@ func (s *Suite) TestAppNameIsCaffeine(c *check.C) {
 	os.Setenv("TSURU_TOKEN", "123")
 	os.Setenv("TSURU_APP_PROXY", "tsuru-caffeine-proxy")
 
-	app, err := getAppName("proxy.mytsuru.com")
-	c.Assert(err, check.ErrorMatches, "App tsuru-caffeine-proxy can't be started by itself")
-	c.Assert(app, check.Equals, "")
+	app, err := getApp("proxy.mytsuru.com")
+	c.Assert(err, check.ErrorMatches, "App tsuru-caffeine-proxy is the proxy itself")
+	c.Assert(app.Name, check.Equals, "tsuru-caffeine-proxy")
 }
 
-func (s *Suite) TestAppNameFoundByIp(c *check.C) {
+func (s *Suite) TestGetAppFoundByIp(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "GET")
 		c.Assert(r.URL.String(), check.Equals, "/apps/")
@@ -71,12 +71,12 @@ func (s *Suite) TestAppNameFoundByIp(c *check.C) {
 	os.Setenv("TSURU_HOST", ts.URL)
 	os.Setenv("TSURU_TOKEN", "123")
 
-	app, err := getAppName("myapp.mytsuru.com")
+	app, err := getApp("myapp.mytsuru.com")
 	c.Assert(err, check.IsNil)
-	c.Assert(app, check.Equals, "myapp-name")
+	c.Assert(app.Name, check.Equals, "myapp-name")
 }
 
-func (s *Suite) TestAppNameFoundByCname(c *check.C) {
+func (s *Suite) TestGetAppFoundByCname(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "GET")
 		c.Assert(r.URL.String(), check.Equals, "/apps/")
@@ -95,12 +95,12 @@ func (s *Suite) TestAppNameFoundByCname(c *check.C) {
 	os.Setenv("TSURU_HOST", ts.URL)
 	os.Setenv("TSURU_TOKEN", "123")
 
-	app, err := getAppName("myapp-cname.mytsuru.com")
+	app, err := getApp("myapp-cname.mytsuru.com")
 	c.Assert(err, check.IsNil)
-	c.Assert(app, check.Equals, "real-app-name")
+	c.Assert(app.Name, check.Equals, "real-app-name")
 }
 
-func (s *Suite) TestAppNameNotFound(c *check.C) {
+func (s *Suite) TestGetAppNotFound(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "GET")
 		c.Assert(r.URL.String(), check.Equals, "/apps/")
@@ -117,7 +117,7 @@ func (s *Suite) TestAppNameNotFound(c *check.C) {
 	os.Setenv("TSURU_HOST", ts.URL)
 	os.Setenv("TSURU_TOKEN", "123")
 
-	app, err := getAppName("myapp.mytsuru.com")
+	app, err := getApp("myapp.mytsuru.com")
 	c.Assert(err, check.ErrorMatches, "App myapp.mytsuru.com not found")
-	c.Assert(app, check.Equals, "")
+	c.Assert(app, check.IsNil)
 }

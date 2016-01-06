@@ -28,24 +28,24 @@ func startApp(app App) {
 	log.Printf("App %s started\n", app.Name)
 }
 
-func getAppName(hostname string) (string, error) {
-	app, err := getApp(hostname)
-	if err != nil {
-		return "", err
-	}
-	if app.Name == getConfig("TSURU_APP_PROXY") {
-		return "", fmt.Errorf("App %s can't be started by itself", app.Name)
-	}
-
-	return app.Name, nil
-}
-
 func getApp(hostname string) (*App, error) {
 	apps, err := listApps()
 	if err != nil {
 		return nil, err
 	}
 
+	app, err := filterAppByHostname(hostname, apps)
+	if err != nil || app == nil {
+		return app, err
+	}
+	if app.Name == getConfig("TSURU_APP_PROXY") {
+		return app, fmt.Errorf("App %s is the proxy itself", app.Name)
+	}
+
+	return app, nil
+}
+
+func filterAppByHostname(hostname string, apps []App) (*App, error) {
 	for _, app := range apps {
 		if hostname == app.Ip {
 			return &app, nil

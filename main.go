@@ -30,10 +30,6 @@ func main() {
 			log.Println(err)
 			return
 		}
-		if app.Name == getConfig("TSURU_APP_PROXY") {
-			log.Printf("App %s can't be started by itself\n", app.Name)
-			return
-		}
 
 		conn := redisPool.Get()
 		defer conn.Close()
