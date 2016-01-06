@@ -66,7 +66,7 @@ func getConfig(key string) string {
 		"HIPACHE_REDIS_MAX_CONN": "10",
 		"TSURU_HOST":             "http://localhost",
 		"TSURU_APP_PROXY":        "",
-		"TOKEN":                  "",
+		"TSURU_TOKEN":            "",
 	}
 
 	value := os.Getenv(key)

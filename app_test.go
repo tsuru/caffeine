@@ -27,7 +27,7 @@ func (s *Suite) TestStartApp(c *check.C) {
 	}))
 	defer ts.Close()
 	os.Setenv("TSURU_HOST", ts.URL)
-	os.Setenv("TOKEN", "123")
+	os.Setenv("TSURU_TOKEN", "123")
 
 	startApp("myapp.mytsuru.com")
 }
@@ -46,7 +46,7 @@ func (s *Suite) TestAppNameIsCaffeine(c *check.C) {
 	}))
 	defer ts.Close()
 	os.Setenv("TSURU_HOST", ts.URL)
-	os.Setenv("TOKEN", "123")
+	os.Setenv("TSURU_TOKEN", "123")
 	os.Setenv("TSURU_APP_PROXY", "tsuru-caffeine-proxy")
 
 	app, err := appName("proxy.mytsuru.com")
@@ -69,7 +69,7 @@ func (s *Suite) TestAppNameFoundByIp(c *check.C) {
 	}))
 	defer ts.Close()
 	os.Setenv("TSURU_HOST", ts.URL)
-	os.Setenv("TOKEN", "123")
+	os.Setenv("TSURU_TOKEN", "123")
 
 	app, err := appName("myapp.mytsuru.com")
 	c.Assert(err, check.IsNil)
@@ -93,7 +93,7 @@ func (s *Suite) TestAppNameFoundByCname(c *check.C) {
 	}))
 	defer ts.Close()
 	os.Setenv("TSURU_HOST", ts.URL)
-	os.Setenv("TOKEN", "123")
+	os.Setenv("TSURU_TOKEN", "123")
 
 	app, err := appName("myapp-cname.mytsuru.com")
 	c.Assert(err, check.IsNil)
@@ -115,7 +115,7 @@ func (s *Suite) TestAppNameNotFound(c *check.C) {
 	}))
 	defer ts.Close()
 	os.Setenv("TSURU_HOST", ts.URL)
-	os.Setenv("TOKEN", "123")
+	os.Setenv("TSURU_TOKEN", "123")
 
 	app, err := appName("myapp.mytsuru.com")
 	c.Assert(err, check.ErrorMatches, "App myapp.mytsuru.com not found")

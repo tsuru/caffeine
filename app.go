@@ -67,7 +67,7 @@ func getApp(hostname string) (*App, error) {
 }
 
 func authToken() string {
-	return fmt.Sprintf("bearer %s", getConfig("TOKEN"))
+	return fmt.Sprintf("bearer %s", getConfig("TSURU_TOKEN"))
 }
 
 func listApps() ([]App, error) {
