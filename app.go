@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -19,25 +18,23 @@ type App struct {
 }
 
 func startApp(hostname string) {
-	app, err := appName(hostname)
+	appName, err := appName(hostname)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	log.Printf("app name: %s\n", app)
 
-	startAppURL := fmt.Sprintf("%s/apps/%s/start", os.Getenv("TSURU_HOST"), app)
-
+	startAppURL := fmt.Sprintf("%s/apps/%s/start", os.Getenv("TSURU_HOST"), appName)
 	client := &http.Client{}
 	req, _ := http.NewRequest("POST", startAppURL, nil)
 	req.Header.Add("Authorization", authToken())
 	resp, _ := client.Do(req)
 	if resp.StatusCode != 200 {
-		log.Printf("Error trying to start app %s", app)
+		log.Printf("Error trying to start app %s\n", appName)
 		return
 	}
 
-	log.Printf("app %s started", app)
+	log.Printf("App %s started\n", appName)
 }
 
 func appName(hostname string) (string, error) {
@@ -46,7 +43,7 @@ func appName(hostname string) (string, error) {
 		return "", err
 	}
 	if app.Name == CAFFEINE_APP_NAME {
-		return "", errors.New("invalid app name")
+		return "", fmt.Errorf("App %s can't be started by itself", app.Name)
 	}
 
 	return app.Name, nil
@@ -55,7 +52,6 @@ func appName(hostname string) (string, error) {
 func getApp(hostname string) (*App, error) {
 	apps, err := listApps()
 	if err != nil {
-		log.Println("Error trying to get apps info")
 		return nil, err
 	}
 
@@ -70,8 +66,7 @@ func getApp(hostname string) (*App, error) {
 		}
 	}
 
-	log.Printf("App %s not found", hostname)
-	return nil, errors.New("App not found")
+	return nil, fmt.Errorf("App %s not found", hostname)
 }
 
 func authToken() string {
@@ -86,19 +81,19 @@ func listApps() ([]App, error) {
 	req.Header.Add("Authorization", authToken())
 	resp, _ := client.Do(req)
 	if resp.StatusCode != 200 {
-		return nil, errors.New("Error trying to get app info")
+		return nil, fmt.Errorf("Error trying to get apps info: HTTP %d", resp.StatusCode)
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.New("Error trying to get app info")
+		return nil, fmt.Errorf("Error trying to get apps info: %s", err.Error())
 	}
 
 	var apps []App
 	err = json.Unmarshal(body, &apps)
 	if err != nil {
-		return nil, errors.New("Error trying to get app info")
+		return nil, fmt.Errorf("Error trying to get apps info: %s", err.Error())
 	}
 
 	return apps, nil

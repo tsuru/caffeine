@@ -49,7 +49,7 @@ func (s *Suite) TestAppNameIsCaffeine(c *check.C) {
 	os.Setenv("TOKEN", "123")
 
 	app, err := appName("tsuru-caffeine-proxy.mytsuru.com")
-	c.Assert(err, check.ErrorMatches, "invalid app name")
+	c.Assert(err, check.ErrorMatches, "App tsuru-caffeine-proxy can't be started by itself")
 	c.Assert(app, check.Equals, "")
 }
 
@@ -117,6 +117,6 @@ func (s *Suite) TestAppNameNotFound(c *check.C) {
 	os.Setenv("TOKEN", "123")
 
 	app, err := appName("myapp.mytsuru.com")
-	c.Assert(err, check.ErrorMatches, "App not found")
+	c.Assert(err, check.ErrorMatches, "App myapp.mytsuru.com not found")
 	c.Assert(app, check.Equals, "")
 }
