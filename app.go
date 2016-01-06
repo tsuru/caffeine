@@ -65,8 +65,7 @@ func authToken() string {
 }
 
 func listApps() ([]App, error) {
-	listAppsURL := fmt.Sprintf("%s/apps/", getConfig("TSURU_HOST"))
-	log.Printf("listing apps from %s", listAppsURL)
+	listAppsURL := fmt.Sprintf("%s/apps", getConfig("TSURU_HOST"))
 
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", listAppsURL, nil)
