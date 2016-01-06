@@ -14,27 +14,21 @@ type App struct {
 	Cname []string
 }
 
-func startApp(hostname string) {
-	appName, err := appName(hostname)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	startAppURL := fmt.Sprintf("%s/apps/%s/start", getConfig("TSURU_HOST"), appName)
+func startApp(app App) {
+	startAppURL := fmt.Sprintf("%s/apps/%s/start", getConfig("TSURU_HOST"), app.Name)
 	client := &http.Client{}
 	req, _ := http.NewRequest("POST", startAppURL, nil)
 	req.Header.Add("Authorization", authToken())
 	resp, _ := client.Do(req)
 	if resp.StatusCode != 200 {
-		log.Printf("Error trying to start app %s\n", appName)
+		log.Printf("Error trying to start app %s\n", app.Name)
 		return
 	}
 
-	log.Printf("App %s started\n", appName)
+	log.Printf("App %s started\n", app.Name)
 }
 
-func appName(hostname string) (string, error) {
+func getAppName(hostname string) (string, error) {
 	app, err := getApp(hostname)
 	if err != nil {
 		return "", err
@@ -72,6 +66,7 @@ func authToken() string {
 
 func listApps() ([]App, error) {
 	listAppsURL := fmt.Sprintf("%s/apps/", getConfig("TSURU_HOST"))
+	log.Printf("listing apps from %s", listAppsURL)
 
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", listAppsURL, nil)

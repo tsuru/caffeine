@@ -29,7 +29,7 @@ func (s *Suite) TestStartApp(c *check.C) {
 	os.Setenv("TSURU_HOST", ts.URL)
 	os.Setenv("TSURU_TOKEN", "123")
 
-	startApp("myapp.mytsuru.com")
+	startApp(App{Name: "myapp"})
 }
 
 func (s *Suite) TestAppNameIsCaffeine(c *check.C) {
@@ -49,7 +49,7 @@ func (s *Suite) TestAppNameIsCaffeine(c *check.C) {
 	os.Setenv("TSURU_TOKEN", "123")
 	os.Setenv("TSURU_APP_PROXY", "tsuru-caffeine-proxy")
 
-	app, err := appName("proxy.mytsuru.com")
+	app, err := getAppName("proxy.mytsuru.com")
 	c.Assert(err, check.ErrorMatches, "App tsuru-caffeine-proxy can't be started by itself")
 	c.Assert(app, check.Equals, "")
 }
@@ -71,7 +71,7 @@ func (s *Suite) TestAppNameFoundByIp(c *check.C) {
 	os.Setenv("TSURU_HOST", ts.URL)
 	os.Setenv("TSURU_TOKEN", "123")
 
-	app, err := appName("myapp.mytsuru.com")
+	app, err := getAppName("myapp.mytsuru.com")
 	c.Assert(err, check.IsNil)
 	c.Assert(app, check.Equals, "myapp-name")
 }
@@ -95,7 +95,7 @@ func (s *Suite) TestAppNameFoundByCname(c *check.C) {
 	os.Setenv("TSURU_HOST", ts.URL)
 	os.Setenv("TSURU_TOKEN", "123")
 
-	app, err := appName("myapp-cname.mytsuru.com")
+	app, err := getAppName("myapp-cname.mytsuru.com")
 	c.Assert(err, check.IsNil)
 	c.Assert(app, check.Equals, "real-app-name")
 }
@@ -117,7 +117,7 @@ func (s *Suite) TestAppNameNotFound(c *check.C) {
 	os.Setenv("TSURU_HOST", ts.URL)
 	os.Setenv("TSURU_TOKEN", "123")
 
-	app, err := appName("myapp.mytsuru.com")
+	app, err := getAppName("myapp.mytsuru.com")
 	c.Assert(err, check.ErrorMatches, "App myapp.mytsuru.com not found")
 	c.Assert(app, check.Equals, "")
 }

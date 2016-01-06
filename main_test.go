@@ -10,9 +10,9 @@ import (
 
 func (s *Suite) TestRestoreRoute(c *check.C) {
 	conn := redigomock.NewConn()
-	host := "tsuru-caffeine-proxy.mytsuru.com"
-	conn.Command("LTRIM", HIPACHE_PREFIX+host, 0, 0).Expect("OK")
-	restoreRoute(host, conn)
+	appAddress := "tsuru-caffeine-proxy.mytsuru.com"
+	conn.Command("LTRIM", HIPACHE_PREFIX+appAddress, 0, 0).Expect("OK")
+	restoreRoute(appAddress, conn)
 }
 
 func (s *Suite) TestWaitBeforeProxy(c *check.C) {

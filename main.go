@@ -25,11 +25,21 @@ var (
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		app, err := getApp(r.Host)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		if app.Name == getConfig("TSURU_APP_PROXY") {
+			log.Printf("App %s can't be started by itself\n", app.Name)
+			return
+		}
+
 		conn := redisPool.Get()
 		defer conn.Close()
-		host := r.Host
-		restoreRoute(host, conn)
-		startApp(host)
+
+		restoreRoute(app.Ip, conn)
+		startApp(*app)
 
 		waitBeforeProxy()
 
@@ -40,12 +50,12 @@ func main() {
 	http.ListenAndServe("0.0.0.0:8888", nil)
 }
 
-func restoreRoute(host string, conn redis.Conn) {
-	name := HIPACHE_PREFIX + host
+func restoreRoute(appAddress string, conn redis.Conn) {
+	name := HIPACHE_PREFIX + appAddress
 	log.Printf("Deleting %s\n", name)
 	_, err := conn.Do("LTRIM", name, 0, 0)
 	if err != nil {
-		log.Printf("Err: %s\n", err)
+		log.Printf("Error deleting route: %s\n", err)
 	}
 }
 
