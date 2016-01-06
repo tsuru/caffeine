@@ -15,9 +15,9 @@ func (s *Suite) TestStartApp(c *check.C) {
 
 		if r.Method == "GET" {
 			c.Assert(r.URL.String(), check.Equals, "/apps/?name=myapp")
-			json, _ := json.Marshal([]map[string]string{map[string]string{"name": "myapp"}})
+			jsonData, _ := json.Marshal([]App{App{Name: "myapp"}})
 			w.Header().Set("Content-Type", "application/json")
-			w.Write(json)
+			w.Write(jsonData)
 		} else {
 			c.Assert(r.Method, check.Equals, "POST")
 			c.Assert(r.URL.String(), check.Equals, "/apps/myapp/start")
@@ -30,7 +30,7 @@ func (s *Suite) TestStartApp(c *check.C) {
 	startApp("myapp.mytsuru.com")
 }
 
-func (s *Suite) TestAppNameCaffeine(c *check.C) {
+func (s *Suite) TestAppNameIsCaffeine(c *check.C) {
 	app, err := appName("tsuru-caffeine-proxy.mytsuru.com")
 	c.Assert(err, check.ErrorMatches, "invalid app name")
 	c.Assert(app, check.Equals, "")
@@ -42,9 +42,9 @@ func (s *Suite) TestAppNameFound(c *check.C) {
 		c.Assert(r.URL.String(), check.Equals, "/apps/?name=myapp")
 		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
 
-		json, _ := json.Marshal([]map[string]string{map[string]string{"name": "myapp"}})
+		jsonData, _ := json.Marshal([]App{App{Name: "myapp"}})
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(json)
+		w.Write(jsonData)
 	}))
 	defer ts.Close()
 	os.Setenv("TSURU_HOST", ts.URL)
@@ -62,10 +62,10 @@ func (s *Suite) TestAppNameFoundByCname(c *check.C) {
 
 		var jsonData []byte
 		if r.URL.String() == "/apps/?name=myapp-cname" {
-			jsonData, _ = json.Marshal([]map[string]string{})
+			jsonData, _ = json.Marshal([]App{})
 		} else {
 			c.Assert(r.URL.String(), check.Equals, "/apps/")
-			jsonData, _ = json.Marshal([]map[string]string{map[string]string{"name": "real-app-name", "cname": "myapp-cname"}})
+			jsonData, _ = json.Marshal([]App{App{Name: "real-app-name", Cname: "myapp-cname"}})
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -87,10 +87,10 @@ func (s *Suite) TestAppNameNotFound(c *check.C) {
 
 		var jsonData []byte
 		if r.URL.String() == "/apps/?name=myapp" {
-			jsonData, _ = json.Marshal([]map[string]string{})
+			jsonData, _ = json.Marshal([]App{})
 		} else {
 			c.Assert(r.URL.String(), check.Equals, "/apps/")
-			jsonData, _ = json.Marshal([]map[string]string{})
+			jsonData, _ = json.Marshal([]App{})
 		}
 
 		w.Header().Set("Content-Type", "application/json")
