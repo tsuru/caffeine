@@ -11,9 +11,17 @@ import (
 
 func (s *Suite) TestStartApp(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		c.Assert(r.Method, check.Equals, "POST")
-		c.Assert(r.URL.String(), check.Equals, "/apps/myapp/start")
 		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
+
+		if r.Method == "GET" {
+			c.Assert(r.URL.String(), check.Equals, "/apps/?name=myapp")
+			json, _ := json.Marshal([]map[string]string{map[string]string{"name": "myapp"}})
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(json)
+		} else {
+			c.Assert(r.Method, check.Equals, "POST")
+			c.Assert(r.URL.String(), check.Equals, "/apps/myapp/start")
+		}
 	}))
 	defer ts.Close()
 	os.Setenv("TSURU_HOST", ts.URL)
@@ -75,12 +83,18 @@ func (s *Suite) TestAppNameFoundByCname(c *check.C) {
 func (s *Suite) TestAppNameNotFound(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "GET")
-		c.Assert(r.URL.String(), check.Equals, "/apps/?name=myapp")
 		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
 
-		json, _ := json.Marshal([]map[string]string{})
+		var jsonData []byte
+		if r.URL.String() == "/apps/?name=myapp" {
+			jsonData, _ = json.Marshal([]map[string]string{})
+		} else {
+			c.Assert(r.URL.String(), check.Equals, "/apps/")
+			jsonData, _ = json.Marshal([]map[string]string{})
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(json)
+		w.Write(jsonData)
 	}))
 	defer ts.Close()
 	os.Setenv("TSURU_HOST", ts.URL)
