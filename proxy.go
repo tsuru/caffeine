@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"net/http/httputil"
 )
@@ -12,7 +11,6 @@ func createProxy(r *http.Request) *httputil.ReverseProxy {
 		req.URL.Scheme = "http"
 		req.URL.Host = r.Host
 		req.Host = r.Host
-		log.Printf("Request: %#v", req)
 	}
 	proxy := &httputil.ReverseProxy{Director: director}
 	return proxy
