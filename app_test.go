@@ -70,6 +70,7 @@ func (s *Suite) TestGetAppFoundByIp(c *check.C) {
 	defer ts.Close()
 	os.Setenv("TSURU_HOST", ts.URL)
 	os.Setenv("TSURU_TOKEN", "123")
+	os.Setenv("TSURU_APP_PROXY", "caffeine")
 
 	app, err := getApp("myapp.mytsuru.com")
 	c.Assert(err, check.IsNil)
@@ -94,6 +95,7 @@ func (s *Suite) TestGetAppFoundByCname(c *check.C) {
 	defer ts.Close()
 	os.Setenv("TSURU_HOST", ts.URL)
 	os.Setenv("TSURU_TOKEN", "123")
+	os.Setenv("TSURU_APP_PROXY", "caffeine")
 
 	app, err := getApp("myapp-cname.mytsuru.com")
 	c.Assert(err, check.IsNil)

@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"fmt"
 )
 
 func main() {
@@ -26,7 +27,7 @@ func main() {
 	http.ListenAndServe("0.0.0.0:8888", nil)
 }
 
-func getConfig(key string) string {
+func getConfig(key string) (string, error) {
 	defaultValues := map[string]string{
 		"TSURU_HOST":        "http://localhost",
 		"TSURU_APP_PROXY":   "",
@@ -36,17 +37,21 @@ func getConfig(key string) string {
 
 	value := os.Getenv(key)
 	if value == "" {
-		return defaultValues[key]
+		value = defaultValues[key]
 	}
 
-	return value
+	if value == "" {
+		return value, fmt.Errorf("Error, environment variable %s is not defined", key)
+	}
+	return value, nil
 }
 
 func waitBeforeProxy(sleep func(time.Duration)) {
 	if sleep == nil {
 		sleep = time.Sleep
 	}
-	sleepTime, err := strconv.Atoi(getConfig("WAIT_BEFORE_PROXY"))
+	waitBeforeProxy, _ := getConfig("WAIT_BEFORE_PROXY")
+	sleepTime, err := strconv.Atoi(waitBeforeProxy)
 	if err == nil && sleepTime > 0 {
 		log.Printf("Waiting %d seconds before proxying...\n", sleepTime)
 		sleep(time.Duration(sleepTime) * time.Second)

@@ -15,10 +15,22 @@ type App struct {
 }
 
 func startApp(app App) {
-	startAppURL := fmt.Sprintf("%s/apps/%s/start", getConfig("TSURU_HOST"), app.Name)
+	host, _ := getConfig("TSURU_HOST")
+	startAppURL := fmt.Sprintf("%s/apps/%s/start", host, app.Name)
 	client := &http.Client{}
-	req, _ := http.NewRequest("POST", startAppURL, nil)
-	req.Header.Add("Authorization", authToken())
+
+	req, err := http.NewRequest("POST", startAppURL, nil)
+	if err != nil {
+		log.Printf("Error trying to start app %s: %s\n", app.Name, err.Error())
+	}
+
+	authToken, err := authToken()
+	if err != nil {
+		log.Printf("Error trying to start app %s: %s\n", app.Name, err.Error())
+		return
+	}
+
+	req.Header.Add("Authorization", authToken)
 	resp, _ := client.Do(req)
 	if resp.StatusCode != 200 {
 		log.Printf("Error trying to start app %s\n", app.Name)
@@ -38,7 +50,13 @@ func getApp(hostname string) (*App, error) {
 	if err != nil || app == nil {
 		return app, err
 	}
-	if app.Name == getConfig("TSURU_APP_PROXY") {
+
+	app_proxy, err := getConfig("TSURU_APP_PROXY")
+	if err != nil {
+		return app, err
+	}
+
+	if app.Name == app_proxy {
 		return app, fmt.Errorf("App %s is the proxy itself", app.Name)
 	}
 
@@ -60,16 +78,28 @@ func filterAppByHostname(hostname string, apps []App) (*App, error) {
 	return nil, fmt.Errorf("App %s not found", hostname)
 }
 
-func authToken() string {
-	return fmt.Sprintf("bearer %s", getConfig("TSURU_TOKEN"))
+func authToken() (string, error) {
+	token, err := getConfig("TSURU_TOKEN")
+	if err != nil {
+		return token, err
+	}
+
+	return fmt.Sprintf("bearer %s", token), nil
 }
 
 func listApps() ([]App, error) {
-	listAppsURL := fmt.Sprintf("%s/apps", getConfig("TSURU_HOST"))
+	host, _ := getConfig("TSURU_HOST")
+	listAppsURL := fmt.Sprintf("%s/apps", host)
 
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", listAppsURL, nil)
-	req.Header.Add("Authorization", authToken())
+
+	authToken, err := authToken()
+	if err != nil {
+		return nil, fmt.Errorf("Error trying to get apps info: %s", err.Error())
+	}
+
+	req.Header.Add("Authorization", authToken)
 	resp, _ := client.Do(req)
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("Error trying to get apps info: HTTP %d", resp.StatusCode)
