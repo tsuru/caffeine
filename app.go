@@ -90,7 +90,6 @@ func listApps() ([]App, error) {
 	host, _ := getConfig("TSURU_HOST")
 	listAppsURL := fmt.Sprintf("%s/apps", host)
 
-	client := &http.Client{}
 	req, _ := http.NewRequest("GET", listAppsURL, nil)
 
 	authToken, err := authToken()
@@ -99,7 +98,7 @@ func listApps() ([]App, error) {
 	}
 
 	req.Header.Add("Authorization", authToken)
-	resp, _ := client.Do(req)
+	resp, _ := http.DefaultClient.Do(req)
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("Error trying to get apps info: HTTP %d", resp.StatusCode)
 	}
