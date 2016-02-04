@@ -17,7 +17,6 @@ type App struct {
 func startApp(app App) {
 	host, _ := getConfig("TSURU_HOST")
 	startAppURL := fmt.Sprintf("%s/apps/%s/start", host, app.Name)
-	client := &http.Client{}
 
 	req, err := http.NewRequest("POST", startAppURL, nil)
 	if err != nil {
@@ -31,7 +30,7 @@ func startApp(app App) {
 	}
 
 	req.Header.Add("Authorization", authToken)
-	resp, _ := client.Do(req)
+	resp, _ := http.DefaultClient.Do(req)
 	if resp.StatusCode != 200 {
 		log.Printf("Error trying to start app %s\n", app.Name)
 		return
