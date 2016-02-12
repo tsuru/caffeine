@@ -10,6 +10,8 @@ import (
 )
 
 func main() {
+	customHeaderValue, _ := getConfig("CUSTOM_HEADER_VALUE")
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		app, err := getApp(r.Host)
 		if err != nil {
@@ -21,7 +23,7 @@ func main() {
 
 		waitBeforeProxy(nil)
 
-		proxy := createProxy(r)
+		proxy := createProxy(r, customHeaderValue)
 		proxy.ServeHTTP(w, r)
 	})
 	http.ListenAndServe("0.0.0.0:8888", nil)
@@ -29,10 +31,11 @@ func main() {
 
 func getConfig(key string) (string, error) {
 	defaultValues := map[string]string{
-		"TSURU_HOST":        "http://localhost",
-		"TSURU_APP_PROXY":   "",
-		"TSURU_TOKEN":       "",
-		"WAIT_BEFORE_PROXY": "0",
+		"CUSTOM_HEADER_VALUE": "",
+		"TSURU_HOST":          "http://localhost",
+		"TSURU_APP_PROXY":     "",
+		"TSURU_TOKEN":         "",
+		"WAIT_BEFORE_PROXY":   "0",
 	}
 
 	value := os.Getenv(key)
