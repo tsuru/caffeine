@@ -20,6 +20,6 @@ func (s *Suite) TestWaitBeforeProxy(c *check.C) {
 
 func (s *Suite) TestErrorOfMissingTsuruToken(c *check.C) {
 	os.Unsetenv("TSURU_TOKEN")
-	_ , err := getConfig("TSURU_TOKEN")
+	_, err := getConfig("TSURU_TOKEN")
 	c.Assert(err, check.Not(check.Equals), nil)
 }
