@@ -14,7 +14,7 @@ func (s *Suite) TestStartApp(c *check.C) {
 		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
 
 		if r.Method == "GET" {
-			c.Assert(r.URL.String(), check.Equals, "/apps")
+			c.Assert(r.URL.String(), check.Equals, "/apps?status=asleep")
 			jsonData, _ := json.Marshal([]App{
 				App{Name: "myapp", Ip: "myapp.mytsuru.com"},
 			})
@@ -35,7 +35,7 @@ func (s *Suite) TestStartApp(c *check.C) {
 func (s *Suite) TestGetAppIsProxy(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "GET")
-		c.Assert(r.URL.String(), check.Equals, "/apps")
+		c.Assert(r.URL.String(), check.Equals, "/apps?status=asleep")
 		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
 
 		jsonData, _ := json.Marshal([]App{
@@ -57,7 +57,7 @@ func (s *Suite) TestGetAppIsProxy(c *check.C) {
 func (s *Suite) TestGetAppFoundByIp(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "GET")
-		c.Assert(r.URL.String(), check.Equals, "/apps")
+		c.Assert(r.URL.String(), check.Equals, "/apps?status=asleep")
 		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
 
 		jsonData, _ := json.Marshal([]App{
@@ -80,7 +80,7 @@ func (s *Suite) TestGetAppFoundByIp(c *check.C) {
 func (s *Suite) TestGetAppFoundByCname(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "GET")
-		c.Assert(r.URL.String(), check.Equals, "/apps")
+		c.Assert(r.URL.String(), check.Equals, "/apps?status=asleep")
 		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
 
 		jsonData, _ := json.Marshal([]App{
@@ -105,7 +105,7 @@ func (s *Suite) TestGetAppFoundByCname(c *check.C) {
 func (s *Suite) TestGetAppNotFound(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "GET")
-		c.Assert(r.URL.String(), check.Equals, "/apps")
+		c.Assert(r.URL.String(), check.Equals, "/apps?status=asleep")
 		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
 
 		jsonData, _ := json.Marshal([]App{

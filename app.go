@@ -88,7 +88,7 @@ func authToken() (string, error) {
 
 func listApps() ([]App, error) {
 	host, _ := getConfig("TSURU_HOST")
-	listAppsURL := fmt.Sprintf("%s/apps", host)
+	listAppsURL := fmt.Sprintf("%s/apps?status=asleep", host)
 
 	req, _ := http.NewRequest("GET", listAppsURL, nil)
 
