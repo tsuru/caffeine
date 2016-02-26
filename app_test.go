@@ -32,28 +32,6 @@ func (s *Suite) TestStartApp(c *check.C) {
 	startApp(App{Name: "myapp"})
 }
 
-func (s *Suite) TestGetAppIsProxy(c *check.C) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		c.Assert(r.Method, check.Equals, "GET")
-		c.Assert(r.URL.String(), check.Equals, "/apps?status=asleep")
-		c.Assert(r.Header.Get("Authorization"), check.Equals, "bearer 123")
-
-		jsonData, _ := json.Marshal([]App{
-			App{Name: "tsuru-caffeine-proxy", Ip: "", Cname: []string{"proxy.mytsuru.com"}},
-		})
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(jsonData)
-	}))
-	defer ts.Close()
-	os.Setenv("TSURU_HOST", ts.URL)
-	os.Setenv("TSURU_TOKEN", "123")
-	os.Setenv("TSURU_APP_PROXY", "tsuru-caffeine-proxy")
-
-	app, err := getApp("proxy.mytsuru.com")
-	c.Assert(err, check.ErrorMatches, "App tsuru-caffeine-proxy is the proxy itself")
-	c.Assert(app.Name, check.Equals, "tsuru-caffeine-proxy")
-}
-
 func (s *Suite) TestGetAppFoundByIp(c *check.C) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Assert(r.Method, check.Equals, "GET")
@@ -70,7 +48,6 @@ func (s *Suite) TestGetAppFoundByIp(c *check.C) {
 	defer ts.Close()
 	os.Setenv("TSURU_HOST", ts.URL)
 	os.Setenv("TSURU_TOKEN", "123")
-	os.Setenv("TSURU_APP_PROXY", "caffeine")
 
 	app, err := getApp("myapp.mytsuru.com")
 	c.Assert(err, check.IsNil)
@@ -95,7 +72,6 @@ func (s *Suite) TestGetAppFoundByCname(c *check.C) {
 	defer ts.Close()
 	os.Setenv("TSURU_HOST", ts.URL)
 	os.Setenv("TSURU_TOKEN", "123")
-	os.Setenv("TSURU_APP_PROXY", "caffeine")
 
 	app, err := getApp("myapp-cname.mytsuru.com")
 	c.Assert(err, check.IsNil)

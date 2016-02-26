@@ -33,7 +33,6 @@ func getConfig(key string) (string, error) {
 	defaultValues := map[string]string{
 		"CUSTOM_HEADER_VALUE": "",
 		"TSURU_HOST":          "http://localhost",
-		"TSURU_APP_PROXY":     "",
 		"TSURU_TOKEN":         "",
 		"WAIT_BEFORE_PROXY":   "0",
 	}

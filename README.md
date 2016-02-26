@@ -9,7 +9,6 @@ Proxy to start asleep apps
 Some environment variables should be configured:
 
 - `CUSTOM_HEADER_VALUE`: if defined, this value is used in a custom header `X-Caffeine` added to the proxied request
-- `TSURU_APP_PROXY`: the name of this app in Tsuru. Used to ignore requests that shouldn't be proxied
 - `TSURU_TOKEN`: user token, used to make requests to Tsuru API
 - `TSURU_HOST`: hostname for Tsuru API
 - `WAIT_BEFORE_PROXY`: time to wait, in seconds, between starting the app and proxying the request (default: `0`)

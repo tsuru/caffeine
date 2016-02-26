@@ -45,21 +45,7 @@ func getApp(hostname string) (*App, error) {
 		return nil, err
 	}
 
-	app, err := filterAppByHostname(hostname, apps)
-	if err != nil || app == nil {
-		return app, err
-	}
-
-	app_proxy, err := getConfig("TSURU_APP_PROXY")
-	if err != nil {
-		return app, err
-	}
-
-	if app.Name == app_proxy {
-		return app, fmt.Errorf("App %s is the proxy itself", app.Name)
-	}
-
-	return app, nil
+	return filterAppByHostname(hostname, apps)
 }
 
 func filterAppByHostname(hostname string, apps []App) (*App, error) {
