@@ -9,8 +9,9 @@ func createProxy(r *http.Request, customHeaderValue string) *httputil.ReversePro
 	director := func(req *http.Request) {
 		req.URL = r.URL
 		req.URL.Scheme = "http"
-		req.URL.Host = r.Host
-		req.Host = r.Host
+		host := r.Header.Get("X-Host")
+		req.URL.Host = host
+		req.Host = host
 
 		if customHeaderValue != "" {
 			req.Header.Add("X-Caffeine", customHeaderValue)

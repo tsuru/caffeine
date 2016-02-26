@@ -13,7 +13,7 @@ func main() {
 	customHeaderValue, _ := getConfig("CUSTOM_HEADER_VALUE")
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		app, err := getApp(r.Host)
+		app, err := getApp(r.Header.Get("X-Host"))
 		if err != nil {
 			log.Println(err)
 			return
