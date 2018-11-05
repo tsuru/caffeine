@@ -2,12 +2,9 @@ language: go
 sudo: false
 install: true
 go:
-  - 1.5.4
-  - 1.6.2
+  - 1.11.x
+  - 1.10.x
   - tip
-env:
-  global:
-    - GO15VENDOREXPERIMENT=1
 script: go test ./...
 matrix:
   allow_failures:
