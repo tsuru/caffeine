@@ -99,3 +99,16 @@ func (s *Suite) TestGetAppNotFound(c *check.C) {
 	c.Assert(err, check.ErrorMatches, "App myapp.mytsuru.com not found")
 	c.Assert(app, check.IsNil)
 }
+
+func (s *Suite) TestGetAppEmptyIp(c *check.C) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		c.Fail()
+	}))
+	defer ts.Close()
+	os.Setenv("TSURU_HOST", ts.URL)
+	os.Setenv("TSURU_TOKEN", "123")
+
+	app, err := getApp("")
+	c.Assert(err, check.ErrorMatches, "Empty hostname")
+	c.Assert(app, check.IsNil)
+}

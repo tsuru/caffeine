@@ -40,6 +40,9 @@ func startApp(app App) {
 }
 
 func getApp(hostname string) (*App, error) {
+	if len(hostname) == 0 {
+		return nil, fmt.Errorf("Empty hostname")
+	}
 	apps, err := listApps()
 	if err != nil {
 		return nil, err
