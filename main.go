@@ -12,6 +12,10 @@ import (
 func main() {
 	customHeaderValue, _ := getConfig("CUSTOM_HEADER_VALUE")
 
+	http.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "WORKING")
+	})
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		app, err := getApp(r.Header.Get("X-Host"))
 		if err != nil {
