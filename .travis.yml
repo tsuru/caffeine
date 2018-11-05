@@ -4,8 +4,8 @@ install: true
 go:
   - 1.11.x
   - 1.10.x
-  - tip
+  - master
 script: go test ./...
 matrix:
   allow_failures:
-    - go: tip
+    - go: master
