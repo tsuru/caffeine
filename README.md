@@ -4,6 +4,15 @@
 
 Proxy to start asleep apps
 
+
+
+## Documentation
+
+See [documentation](https://godoc.org/github.com/tsuru/caffeine
+)
+for instructions.
+
+
 ## Configuration
 
 Some environment variables should be configured:
